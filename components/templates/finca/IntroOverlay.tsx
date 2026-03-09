@@ -19,9 +19,9 @@ export function IntroOverlay({ onEnter, onInteraction }: IntroOverlayProps) {
     if (!video) return
 
     const checkSupport = () => {
-      // Check if .mov is supported
+      // Check if .mov is supported (canPlayType returns '' | 'maybe' | 'probably')
       const movSupported = video.canPlayType('video/quicktime')
-      if (!movSupported || movSupported === '') {
+      if (!movSupported) {
         setVideoSupported(false)
       }
     }

@@ -38,8 +38,12 @@ export async function GET(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
+    const viewCount = await db.invitationView.count({
+      where: { invitationId: id },
+    })
+
     return NextResponse.json({
-      viewCount: invitation.viewCount,
+      viewCount,
       messages: invitation.rsvps.map((r) => ({
         id: r.id,
         guestName: r.guestName,
