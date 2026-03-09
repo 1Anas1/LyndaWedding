@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { requireOwner } from '@/lib/auth'
-import { InvitationStatus, PaymentStatus } from '@prisma/client'
+import { InvitationStatus } from '@prisma/client'
 
 export async function POST(
-  request: NextRequest,
+  _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
@@ -13,9 +13,6 @@ export async function POST(
 
     const invitation = await db.invitation.findUnique({
       where: { id },
-      include: {
-        payments: true,
-      },
     })
 
     if (!invitation) {
@@ -25,7 +22,6 @@ export async function POST(
       )
     }
 
-    // Verify invitation belongs to current user
     if (invitation.ownerId !== user.id) {
       return NextResponse.json(
         { error: 'Forbidden' },
@@ -33,7 +29,6 @@ export async function POST(
       )
     }
 
-    // Check if already published
     if (invitation.status === InvitationStatus.PUBLISHED) {
       return NextResponse.json(
         { error: 'Invitation is already published' },
@@ -41,22 +36,7 @@ export async function POST(
       )
     }
 
-    // Check for paid payment
-    const paidPayment = invitation.payments.find(
-      (p) => p.status === PaymentStatus.PAID
-    )
-
-    if (!paidPayment) {
-      return NextResponse.json(
-        {
-          error: 'Payment required',
-          message: 'Please complete payment before publishing your invitation.',
-        },
-        { status: 402 } // 402 Payment Required
-      )
-    }
-
-    // Publish the invitation
+    // Publish (free – no payment required)
     const updated = await db.invitation.update({
       where: { id },
       data: {

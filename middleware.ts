@@ -14,8 +14,7 @@ export default auth((req) => {
     pathname === '/wedding' ||
     pathname.startsWith('/api/rsvp') ||
     pathname.startsWith('/api/invites/') ||
-    (pathname.startsWith('/api/invitations/') && pathname.includes('/slug')) ||
-    pathname.startsWith('/api/billing/webhook') || // Stripe webhook
+    (    pathname.startsWith('/api/invitations/') && pathname.includes('/slug')) ||
     pathname.startsWith('/api/auth/') || // Auth endpoints
     pathname === '/' ||
     pathname === '/login' ||
@@ -60,16 +59,6 @@ export default auth((req) => {
     // OWNER can access their invitations, ADMIN can access all
     if (pathname.startsWith('/api/invitations/') && !pathname.includes('/publish')) {
       // Will be checked in the route handler
-    }
-  }
-
-  if (pathname.startsWith('/api/billing')) {
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    if (session.user.role !== UserRole.OWNER) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
   }
 

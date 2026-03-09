@@ -88,11 +88,6 @@ export function InvitationEditor({ invitation: initialInvitation }: InvitationEd
       const data = await response.json()
 
       if (!response.ok) {
-        if (response.status === 402) {
-          // Payment required
-          router.push(`/app/billing?invitationId=${invitation.id}`)
-          return
-        }
         throw new Error(data.error || 'Failed to publish')
       }
 

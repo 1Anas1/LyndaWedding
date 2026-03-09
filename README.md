@@ -1,12 +1,12 @@
 # Lynda Wedding — Digital Wedding Invitations SaaS
 
-A **SaaS platform** that lets couples create and manage modern digital wedding invitation sites: custom content, events with maps and photos, RSVP collection, guest messages, and one-time payment to publish. Guests view a single-page wedding experience with intro video, countdown, location, and RSVP.
+A **SaaS platform** that lets couples create and manage modern digital wedding invitation sites: custom content, events with maps and photos, RSVP collection, guest messages, and free publishing. Guests view a single-page wedding experience with intro video, countdown, location, and RSVP.
 
 ---
 
 ## What This Project Does
 
-- **Couples (owners)** sign in, create one or more invitations, edit content and design, add events (with location search and image upload), configure RSVP, and pay once via Stripe to publish. They get a shareable link and a dashboard with view counts, messages, and RSVP list.
+- **Couples (owners)** sign in, create one or more invitations, edit content and design, add events (with location search and image upload), configure RSVP, and publish for free. They get a shareable link and a dashboard with view counts, messages, and RSVP list.
 - **Guests** open the invitation link (`/i/[slug]`), see the wedding page (intro video, hero, countdown, “Détails du jour” with venue photo and map, RSVP). They can submit RSVP and leave a message.
 - **Admin** (optional) can access an admin area for internal use.
 
@@ -23,7 +23,7 @@ A **SaaS platform** that lets couples create and manage modern digital wedding i
 | **RSVP** | Form per invitation, guest name, email, phone, attending, party size, notes, dietary; stored in DB |
 | **Guest messages** | “Écrivez un mot” section; messages stored and visible in dashboard |
 | **Stats** | View count per invitation (session-based), message list in dashboard |
-| **Payments** | One-time Stripe Checkout to publish; webhook for payment confirmation |
+| **Publish** | Free; publish anytime from the editor or the Publish page |
 | **Public page** | Intro overlay (video + poster), hero, countdown, “Détails du jour” (venue photo + map), RSVP, footer; background music |
 | **Sharing** | Copy invitation link (`/i/[slug]`), optional user link `/u/[userId]` |
 
@@ -163,19 +163,9 @@ See **[SETUP.md](./SETUP.md)**, **[ENV_SETUP.md](./ENV_SETUP.md)**, and **[DATAB
 | `DATABASE_URL` | Yes | PostgreSQL connection string |
 | `AUTH_SECRET` | Yes | NextAuth secret (e.g. `openssl rand -base64 32`) |
 | `NEXT_PUBLIC_APP_URL` | Recommended | App URL (e.g. `http://localhost:3000` or `https://your-app.vercel.app`) |
-| `STRIPE_SECRET_KEY` | For payments | Stripe secret key |
-| `STRIPE_WEBHOOK_SECRET` | For payments | Stripe webhook signing secret |
 | `BLOB_READ_WRITE_TOKEN` | For event image uploads | Vercel Blob token (required for upload; get from Vercel project → Storage → Blob) |
 
 See **[ENV_SETUP.md](./ENV_SETUP.md)** for details, **[DATABASE_SETUP.md](./DATABASE_SETUP.md)** for database options, and **[DEPLOYMENT_VERCEL.md](./DEPLOYMENT_VERCEL.md)** for production deployment on Vercel.
-
----
-
-## Stripe (Publish Payment)
-
-1. Get API keys from [Stripe Dashboard](https://dashboard.stripe.com/apikeys).  
-2. Add `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` to `.env`.  
-3. Local webhook: `stripe listen --forward-to localhost:3000/api/billing/webhook`.
 
 ---
 

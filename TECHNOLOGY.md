@@ -30,12 +30,6 @@ This document describes the technologies, architecture, and main flows used in t
 | **Credentials provider** | Email + password |
 | **bcryptjs** | Password hashing |
 
-### Payments
-
-| Technology | Role |
-|------------|------|
-| **Stripe** | Checkout Session (one-time payment to publish), webhook for payment confirmation |
-
 ### UI & Styling
 
 | Technology | Role |
