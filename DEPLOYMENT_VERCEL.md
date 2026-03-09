@@ -34,13 +34,12 @@ In Vercel: **Project → Settings → Environment Variables**. Add these for **P
 | `DATABASE_URL` | `postgresql://...` | From your Postgres provider |
 | `AUTH_SECRET` | (random string) | e.g. `openssl rand -base64 32` |
 | `NEXT_PUBLIC_APP_URL` | `https://your-app.vercel.app` | Your Vercel deployment URL (or custom domain) |
-| `STRIPE_SECRET_KEY` | `sk_live_...` or `sk_test_...` | From [Stripe Dashboard](https://dashboard.stripe.com/apikeys) |
-| `STRIPE_WEBHOOK_SECRET` | `whsec_...` | From Stripe webhook (see step 5) |
 | `BLOB_READ_WRITE_TOKEN` | (token) | From Vercel: Storage → Blob → create store → copy token |
 
 - **AUTH_SECRET**: Must be set in production; use a long random value.
 - **NEXT_PUBLIC_APP_URL**: Must match the URL guests and Stripe use (e.g. `https://your-domain.vercel.app`).
-- **BLOB_READ_WRITE_TOKEN**: Required for event image uploads; create a Blob store in the same Vercel project (Storage → Blob).
+- **BLOB_READ_WRITE_TOKEN**: Required for event image uploads; create a Blob store in the same Vercel project (Storage → Blob).  
+- This app does not use Stripe; publishing is free.
 
 ---
 
@@ -79,17 +78,7 @@ For future schema changes:
 
 ---
 
-## 5. Stripe webhook (production)
-
-1. In [Stripe Dashboard](https://dashboard.stripe.com/webhooks) → **Add endpoint**.
-2. **Endpoint URL**: `https://your-app.vercel.app/api/billing/webhook` (replace with your real Vercel URL or custom domain).
-3. **Events**: select `checkout.session.completed` and `checkout.session.async_payment_failed` (or the events your webhook handler uses).
-4. Create the endpoint and copy the **Signing secret** (`whsec_...`).
-5. In Vercel, set **Environment Variable** `STRIPE_WEBHOOK_SECRET` to that value and redeploy if needed.
-
----
-
-## 6. Vercel Blob (event images)
+## 5. Vercel Blob (event images)
 
 1. In Vercel: **Project → Storage → Create Database** (or **Add** if you already use Postgres).
 2. Choose **Blob** and create a store.
@@ -100,7 +89,7 @@ Event image uploads (`POST /api/upload/event-image`) will then store files in Ve
 
 ---
 
-## 7. Deploy
+## 6. Deploy
 
 1. Save all environment variables in Vercel.
 2. Trigger a deploy: push to the linked branch or use **Redeploy** in the Vercel dashboard.
@@ -108,18 +97,34 @@ Event image uploads (`POST /api/upload/event-image`) will then store files in Ve
 
 ---
 
-## 8. Post-deploy checks
+## 7. Post-deploy checks
 
 - **Homepage**: `https://your-app.vercel.app`
 - **Login**: `https://your-app.vercel.app/login`
 - **Invitation**: `https://your-app.vercel.app/i/your-slug`
-- **Stripe**: Complete a test payment and confirm the webhook runs (Stripe Dashboard → Webhooks → your endpoint → recent events).
 - **Event image**: As owner, add an event with an image and confirm it appears on the invitation (venue image in “Détails du jour”).
 
 ---
 
-## 9. Caveats
+## 8. Caveats
 
 - **Serverless**: Cold starts can add latency; Prisma + connection pooling (e.g. Neon pooler) is recommended.
 - **Existing event images**: Invitations that already have `Event.imageUrl` as a **relative** path (e.g. `/uploads/events/...`) were from local storage and will **not** resolve on Vercel. Re-upload the image in the event editor to store a Blob URL.
 - **Build**: If you use Option B (migrate in build), ensure the build role can connect to the production database and that migrations are safe to run on every deploy.
+
+---
+
+## 9. Troubleshooting
+
+### Build error: "Failed to collect page data for /api/billing/checkout"
+
+This route was removed (the app is free, no Stripe). If the error still appears, **Vercel is using an old build cache**.
+
+**Fix:**
+
+1. Open your project on [Vercel Dashboard](https://vercel.com/dashboard).
+2. Go to **Settings** → **General**.
+3. Scroll to **Build Cache** and click **Clear Build Cache** (or **Redeploy** with "Clear cache and redeploy").
+4. Trigger a new deployment (e.g. **Deployments** → **⋯** on latest → **Redeploy** and check **Clear build cache**).
+
+After a clean build, the error should disappear.
