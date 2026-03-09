@@ -1,0 +1,137 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Great+Vibes&family=Lora:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Finca template tokens */
+    --background: 40 39% 91%;
+    --foreground: 100 15% 24%;
+    --card: 40 35% 88%;
+    --card-foreground: 100 15% 24%;
+    --popover: 40 39% 91%;
+    --popover-foreground: 100 15% 24%;
+    --primary: 100 15% 24%;
+    --primary-foreground: 40 39% 91%;
+    --secondary: 60 12% 69%;
+    --secondary-foreground: 100 15% 24%;
+    --muted: 60 10% 82%;
+    --muted-foreground: 77 15% 40%;
+    --accent: 77 15% 50%;
+    --accent-foreground: 40 39% 91%;
+    --destructive: 0 65% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 60 12% 75%;
+    --input: 60 12% 75%;
+    --ring: 100 15% 24%;
+    --radius: 0.5rem;
+    
+    /* Finca specific tokens */
+    --ivory: 40 39% 91%;
+    --cream: 40 35% 88%;
+    --sage: 77 15% 50%;
+    --sage-dark: 100 15% 24%;
+    --sage-light: 60 12% 69%;
+    --gold: 42 85% 55%;
+    --gold-soft: 42 60% 70%;
+    --terracotta: 77 25% 45%;
+    --olive: 77 15% 50%;
+    --carbon: 0 0% 16%;
+    --countdown: 72 16% 43%;
+    
+    /* Fonts */
+    --font-display: "Cormorant Garamond", serif;
+    --font-script: "Great Vibes", cursive;
+    --font-body: "Lora", serif;
+    
+    /* Transitions */
+    --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    
+    /* Shadows */
+    --shadow-soft: 0 2px 15px -3px rgba(58, 69, 52, 0.08), 0 4px 6px -2px rgba(58, 69, 52, 0.04);
+    --shadow-elegant: 0 10px 40px -10px rgba(58, 69, 52, 0.15), 0 4px 15px -3px rgba(58, 69, 52, 0.08);
+    --shadow-lifted: 0 20px 50px -15px rgba(58, 69, 52, 0.2), 0 8px 20px -5px rgba(58, 69, 52, 0.1);
+    
+    /* Chart colors (keep for compatibility) */
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    background-blend-mode: overlay;
+    background-size: 200px;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+  }
+}
+
+@layer components {
+  .section-padding {
+    padding: 5rem 1.5rem;
+  }
+  @media (min-width: 768px) {
+    .section-padding {
+      padding: 8rem 3rem;
+    }
+  }
+
+  .section-title {
+    margin-bottom: 1rem;
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+    font-weight: 300;
+    letter-spacing: 0.025em;
+    font-family: var(--font-display);
+  }
+  @media (min-width: 768px) {
+    .section-title {
+      font-size: 3rem;
+      line-height: 1;
+    }
+  }
+
+  .bg-countdown {
+    background-color: hsl(var(--countdown));
+  }
+  .bg-ivory {
+    background-color: hsl(var(--ivory));
+  }
+  .bg-sage-dark {
+    background-color: hsl(var(--sage-dark));
+  }
+  .text-sage-dark {
+    color: hsl(var(--sage-dark));
+  }
+  .text-gold {
+    color: hsl(var(--gold));
+  }
+
+  .wedding-page {
+    font-size: 1.25rem;
+    line-height: 1.8;
+  }
+  @media (min-width: 768px) {
+    .wedding-page {
+      font-size: 1.4rem;
+      line-height: 1.85;
+    }
+  }
+}

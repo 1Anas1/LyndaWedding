@@ -1,0 +1,165 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  OWNER
+  ADMIN
+}
+
+enum InvitationStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String?  // Hashed password for credentials auth
+  role      UserRole @default(OWNER)
+  createdAt DateTime @default(now())
+
+  invitations Invitation[]
+  auditLogs   AuditLog[]
+
+  @@map("users")
+}
+
+model Theme {
+  id          String   @id @default(cuid())
+  name        String
+  tokensJson  Json     // colors, fonts, spacing, components
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  invitations Invitation[]
+
+  @@map("themes")
+}
+
+model Invitation {
+  id          String           @id @default(cuid())
+  ownerId     String
+  slug        String           @unique
+  status      InvitationStatus @default(DRAFT)
+  title       String?
+  locale      String           @default("en")
+  eventDate   DateTime?
+  themeId     String
+  contentJson Json             // sections + copy
+  settingsJson Json            // privacy flags, RSVP settings
+  publishedAt DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  owner   User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  theme   Theme     @relation(fields: [themeId], references: [id])
+  events  Event[]
+  rsvps   RSVP[]
+  payments Payment[]
+  views   InvitationView[]
+
+  @@index([slug])
+  @@index([status])
+  @@map("invitations")
+}
+
+model InvitationView {
+  id           String   @id @default(cuid())
+  invitationId String
+  viewedAt     DateTime @default(now())
+  sessionId    String?  // Optional: for deduplication (same visitor = one view per session per day)
+
+  invitation Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@index([invitationId])
+  @@index([invitationId, sessionId, viewedAt])
+  @@map("invitation_views")
+}
+
+model Event {
+  id            String    @id @default(cuid())
+  invitationId  String
+  name          String
+  startsAt      DateTime
+  endsAt        DateTime?
+  locationName  String?
+  address       String?
+  mapLat        Float?
+  mapLng        Float?
+  notes         String?
+  imageUrl      String?
+
+  invitation Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@index([invitationId])
+  @@map("events")
+}
+
+model RSVP {
+  id           String    @id @default(cuid())
+  invitationId String
+  guestName    String
+  email        String?
+  phone        String?
+  attending    Boolean
+  partySize    Int       @default(1)
+  notes        String?
+  dietary      String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  dedupeKey    String?   // For deduplication tracking
+
+  invitation Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@index([invitationId, guestName])
+  @@index([invitationId, createdAt])
+  @@map("rsvps")
+}
+
+model Payment {
+  id                   String        @id @default(cuid())
+  invitationId         String
+  stripeSessionId      String?       @unique
+  stripePaymentIntentId String?
+  amount               Int           // Amount in cents
+  currency             String        @default("usd")
+  status               PaymentStatus @default(PENDING)
+  createdAt            DateTime      @default(now())
+
+  invitation Invitation @relation(fields: [invitationId], references: [id], onDelete: Cascade)
+
+  @@index([invitationId, status])
+  @@map("payments")
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  actorId     String?
+  action      String
+  targetType  String
+  targetId    String
+  metadataJson Json?
+  createdAt   DateTime @default(now())
+
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([targetType, targetId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
