@@ -20,6 +20,8 @@ const putSchema = z.object({
   events: z.array(eventSchema),
 })
 
+export const dynamic = 'force-dynamic'
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

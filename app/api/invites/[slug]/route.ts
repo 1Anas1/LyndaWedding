@@ -6,6 +6,8 @@ import { db } from '@/lib/db'
  * Returns invitation data for the static clone frontend.
  * Public endpoint - no auth required.
  */
+export const dynamic = 'force-dynamic'
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }

@@ -3,6 +3,8 @@ import { requireOwner } from '@/lib/auth'
 import { put } from '@vercel/blob'
 import { validateEventImageFile } from '@/lib/upload'
 
+export const dynamic = 'force-dynamic'
+
 export async function POST(request: NextRequest) {
   try {
     await requireOwner()

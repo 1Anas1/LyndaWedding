@@ -6,6 +6,8 @@ import { requireOwner } from '@/lib/auth'
  * GET /api/invitations/[id]/stats
  * Returns view count and guest messages for the invitation (owner only).
  */
+export const dynamic = 'force-dynamic'
+
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }

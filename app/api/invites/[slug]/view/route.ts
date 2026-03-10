@@ -7,6 +7,8 @@ import { db } from '@/lib/db'
  * Call once per page load from the wedding page.
  * Optional body: { sessionId?: string } for deduplication.
  */
+export const dynamic = 'force-dynamic'
+
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ slug: string }> }
