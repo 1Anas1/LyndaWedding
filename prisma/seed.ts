@@ -69,29 +69,30 @@ async function main() {
 
   console.log('Created themes:', theme1.name, theme2.name)
 
-  // Create or update users with hashed passwords
-  const hashedPassword = await bcrypt.hash('password123', 10)
-
-  const owner = await prisma.user.upsert({
-    where: { email: 'owner@example.com' },
+  // Simple user (OWNER) – dashboard, create invitations
+  const userPassword = await bcrypt.hash('password123', 10)
+  const simpleUser = await prisma.user.upsert({
+    where: { email: 'user@example.com' },
     create: {
-      email: 'owner@example.com',
-      name: 'Demo Owner',
-      password: hashedPassword,
+      email: 'user@example.com',
+      name: 'Simple User',
+      password: userPassword,
       role: UserRole.OWNER,
     },
-    update: { password: hashedPassword, name: 'Demo Owner', role: UserRole.OWNER },
+    update: { password: userPassword, name: 'Simple User', role: UserRole.OWNER },
   })
 
-  const admin = await prisma.user.upsert({
+  // Admin user (ADMIN) – admin area
+  const adminPassword = await bcrypt.hash('admin123', 10)
+  const adminUser = await prisma.user.upsert({
     where: { email: 'admin@example.com' },
     create: {
       email: 'admin@example.com',
       name: 'Admin User',
-      password: hashedPassword,
+      password: adminPassword,
       role: UserRole.ADMIN,
     },
-    update: { password: hashedPassword, name: 'Admin User', role: UserRole.ADMIN },
+    update: { password: adminPassword, name: 'Admin User', role: UserRole.ADMIN },
   })
 
   // Dedicated demo account for Lynda & Aymen – no password, cannot log in.
@@ -107,7 +108,11 @@ async function main() {
     update: { name: 'Lynda & Aymen', password: null, role: UserRole.OWNER },
   })
 
-  console.log('Created users:', owner.email, admin.email, demoOwner.email)
+  console.log('Created users:', simpleUser.email, adminUser.email, demoOwner.email)
+  console.log('\n--- Login (dashboard / admin) ---')
+  console.log('Simple user (OWNER): user@example.com / password123')
+  console.log('Admin user (ADMIN):  admin@example.com / admin123')
+  console.log('---\n')
 
   // Create or update invitation – owned by demo account
   const invitation = await prisma.invitation.upsert({

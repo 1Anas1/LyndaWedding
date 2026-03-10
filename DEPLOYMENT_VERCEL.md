@@ -32,7 +32,8 @@ In Vercel: **Project → Settings → Environment Variables**. Add these for **P
 | Name | Value | Notes |
 |------|--------|------|
 | `DATABASE_URL` | `postgresql://...` | From your Postgres provider |
-| `AUTH_SECRET` | (random string) | e.g. `openssl rand -base64 32` |
+| `AUTH_SECRET` | (random string) | e.g. `openssl rand -base64 32` – **required** for auth |
+| `AUTH_TRUST_HOST` | `true` | **Required** so NextAuth trusts the Vercel host and auth works in production |
 | `NEXT_PUBLIC_APP_URL` | `https://your-app.vercel.app` | Your Vercel deployment URL (or custom domain) |
 | `BLOB_READ_WRITE_TOKEN` | (token) | From Vercel: Storage → Blob → create store → copy token |
 
@@ -128,3 +129,23 @@ This route was removed (the app is free, no Stripe). If the error still appears,
 4. Trigger a new deployment (e.g. **Deployments** → **⋯** on latest → **Redeploy** and check **Clear build cache**).
 
 After a clean build, the error should disappear.
+
+### 404 on `/i/demo-wedding` or 500 on `/app`
+
+These usually mean the **production database is empty** or **DATABASE_URL is missing/wrong** on Vercel.
+
+1. **Set `DATABASE_URL` on Vercel**  
+   In **Project → Settings → Environment Variables**, add `DATABASE_URL` with the same Neon (or Postgres) connection string you use locally. Redeploy.
+
+2. **Apply migrations and seed the production DB**  
+   From your machine, using the **production** URL (same as Vercel):
+
+   ```bash
+   set DATABASE_URL=postgresql://...your-production-url...
+   npx prisma migrate deploy
+   npm run db:seed
+   ```
+
+   (On macOS/Linux use `export DATABASE_URL=...`.)
+
+   After this, the production DB will have the `demo-wedding` invitation and the seed users. `/i/demo-wedding` will load and `/app` will work once you are logged in.

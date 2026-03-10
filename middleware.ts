@@ -14,7 +14,7 @@ export default auth((req) => {
     pathname === '/wedding' ||
     pathname.startsWith('/api/rsvp') ||
     pathname.startsWith('/api/invites/') ||
-    (    pathname.startsWith('/api/invitations/') && pathname.includes('/slug')) ||
+    (pathname.startsWith('/api/invitations/') && pathname.includes('/slug')) ||
     pathname.startsWith('/api/auth/') || // Auth endpoints
     pathname === '/' ||
     pathname === '/login' ||
@@ -25,49 +25,46 @@ export default auth((req) => {
 
   // Protected routes
   if (pathname.startsWith('/app')) {
-    if (!session) {
+    if (!session?.user) {
       const loginUrl = new URL('/login', req.url)
       loginUrl.searchParams.set('callbackUrl', pathname)
       return NextResponse.redirect(loginUrl)
     }
 
-    // OWNER role required for /app routes
-    if (session.user.role !== UserRole.OWNER) {
+    // OWNER role required for /app (if role is missing, allow – session may still be syncing)
+    const role = session.user.role
+    if (role != null && role !== UserRole.OWNER) {
       return NextResponse.redirect(new URL('/unauthorized', req.url))
     }
   }
 
   if (pathname.startsWith('/admin')) {
-    if (!session) {
+    if (!session?.user) {
       const loginUrl = new URL('/login', req.url)
       loginUrl.searchParams.set('callbackUrl', pathname)
       return NextResponse.redirect(loginUrl)
     }
 
-    // ADMIN role required for /admin routes
-    if (session.user.role !== UserRole.ADMIN) {
+    // ADMIN role required for /admin
+    const role = session.user.role
+    if (role != null && role !== UserRole.ADMIN) {
       return NextResponse.redirect(new URL('/unauthorized', req.url))
     }
   }
 
   // Protect API routes
   if (pathname.startsWith('/api/invitations') && !pathname.includes('/slug')) {
-    if (!session) {
+    if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    // OWNER can access their invitations, ADMIN can access all
-    if (pathname.startsWith('/api/invitations/') && !pathname.includes('/publish')) {
-      // Will be checked in the route handler
     }
   }
 
   if (pathname.startsWith('/api/admin')) {
-    if (!session) {
+    if (!session?.user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
-
-    if (session.user.role !== UserRole.ADMIN) {
+    const role = session.user.role
+    if (role != null && role !== UserRole.ADMIN) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
   }

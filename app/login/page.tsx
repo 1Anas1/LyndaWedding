@@ -61,7 +61,7 @@ function LoginForm() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full px-4 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring"
-                placeholder="owner@example.com"
+                placeholder="user@example.com"
               />
             </div>
 
@@ -96,9 +96,9 @@ function LoginForm() {
 
           <div className="mt-6 pt-6 border-t border-border">
             <p className="text-xs text-muted-foreground text-center">
-              Demo credentials: owner@example.com / admin@example.com
+              User (dashboard): user@example.com / password123
               <br />
-              Password: password123
+              Admin: admin@example.com / admin123
             </p>
           </div>
         </div>

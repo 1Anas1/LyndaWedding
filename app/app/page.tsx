@@ -12,11 +12,19 @@ import {
   Plus,
 } from 'lucide-react'
 import { CopyInvitationLink } from '@/components/app/CopyInvitationLink'
+import { Button } from '@/components/ui/button'
 
 export default async function OwnerDashboard() {
-  const user = await requireOwner()
+  let user
+  try {
+    user = await requireOwner()
+  } catch (e) {
+    throw e
+  }
 
-  const invitations = await db.invitation.findMany({
+  let invitations
+  try {
+    invitations = await db.invitation.findMany({
     where: { ownerId: user.id },
     include: {
       theme: true,
@@ -42,6 +50,26 @@ export default async function OwnerDashboard() {
       createdAt: 'desc',
     },
   })
+  } catch (dbError) {
+    console.error('Dashboard DB error:', dbError)
+    return (
+      <main className="flex-1 flex items-center justify-center min-h-[50vh] px-4">
+        <div className="max-w-md w-full text-center space-y-6">
+          <h1 className="text-xl font-semibold text-foreground">
+            Erreur base de données
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Impossible de charger les invitations. Vérifiez que DATABASE_URL est
+            défini sur Vercel et que les migrations ont été appliquées (npx
+            prisma migrate deploy).
+          </p>
+          <Button asChild>
+            <Link href="/app">Réessayer</Link>
+          </Button>
+        </div>
+      </main>
+    )
+  }
 
   return (
     <main className="flex-1">
