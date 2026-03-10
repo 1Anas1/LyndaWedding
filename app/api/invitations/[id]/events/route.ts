@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { db } from '@/lib/db'
-import { requireOwner } from '@/lib/auth'
 import { z } from 'zod'
 
 const eventSchema = z.object({
@@ -26,6 +24,9 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const { db } = await import('@/lib/db')
+  const { requireOwner } = await import('@/lib/auth')
+
   try {
     const user = await requireOwner()
     const { id: invitationId } = await params
