@@ -16,6 +16,6 @@ function getPrisma(): PrismaClient {
 // Lazy proxy: only creates PrismaClient on first use (avoids build-time init on Vercel)
 export const db = new Proxy({} as PrismaClient, {
   get(_, prop) {
-    return (getPrisma() as Record<string | symbol, unknown>)[prop]
+    return (getPrisma() as unknown as Record<string | symbol, unknown>)[prop]
   },
 })
