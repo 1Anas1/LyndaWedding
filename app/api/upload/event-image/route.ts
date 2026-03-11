@@ -46,11 +46,33 @@ export async function POST(request: NextRequest) {
     const blob = await put(pathname, file, {
       access: 'public',
       addRandomSuffix: true,
+      token: process.env.BLOB_READ_WRITE_TOKEN,
     })
 
     return NextResponse.json({ url: blob.url })
   } catch (err) {
-    console.error('Upload error:', err)
+    const message = err instanceof Error ? err.message : String(err)
+    console.error('Upload error:', message, err)
+
+    // Helpful messages for known Blob/config issues (no secrets exposed)
+    if (
+      /token|unauthorized|401|forbidden|403|blob.*config|store/i.test(message)
+    ) {
+      return NextResponse.json(
+        {
+          error:
+            'Configuration Blob invalide. Vérifiez BLOB_READ_WRITE_TOKEN dans les variables d’environnement Vercel (Storage → Blob).',
+        },
+        { status: 500 }
+      )
+    }
+    if (/size|too large|413/i.test(message)) {
+      return NextResponse.json(
+        { error: 'Fichier trop volumineux (max 4 Mo)' },
+        { status: 413 }
+      )
+    }
+
     return NextResponse.json(
       { error: 'Erreur lors de l’upload' },
       { status: 500 }
