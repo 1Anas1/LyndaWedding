@@ -7,6 +7,14 @@ import { cn } from '@/lib/utils'
 
 const DEFAULT_VENUE_IMAGE = '/assets/finca-biniagual-tpK1hn9e.webp'
 
+/** Use proxy for private Vercel Blob URLs so images load. */
+function getVenueImageSrc(url: string | null | undefined): string {
+  if (!url || url.trim() === '') return DEFAULT_VENUE_IMAGE
+  if (url.includes('blob.vercel-storage.com'))
+    return `/api/event-image?url=${encodeURIComponent(url)}`
+  return url
+}
+
 interface LocationSectionProps {
   location?: string
   address?: string | null
@@ -42,7 +50,7 @@ export function LocationSection({
   endTime = '01:00',
   weddingDate = '2026-04-09',
 }: LocationSectionProps) {
-  const imageSrc = venueImageUrl && venueImageUrl.trim() !== '' ? venueImageUrl : DEFAULT_VENUE_IMAGE
+  const imageSrc = getVenueImageSrc(venueImageUrl)
   const locationName = location || 'Jardin de réception'
   const calendarUrl = buildCalendarUrl(
     `Mariage Lynda & Aymen`,

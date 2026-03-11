@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
     const pathname = `events/${Date.now()}-${Math.random().toString(36).slice(2, 9)}.${ext}`
 
     const blob = await put(pathname, file, {
-      access: 'public',
+      access: 'private',
       addRandomSuffix: true,
       token: process.env.BLOB_READ_WRITE_TOKEN,
     })
@@ -55,6 +55,15 @@ export async function POST(request: NextRequest) {
     console.error('Upload error:', message, err)
 
     // Helpful messages for known Blob/config issues (no secrets exposed)
+    if (/private store|public access on a private/i.test(message)) {
+      return NextResponse.json(
+        {
+          error:
+            'Store Blob en mode privé : l’upload utilise bien "private". Si l’erreur persiste, redéployez.',
+        },
+        { status: 500 }
+      )
+    }
     if (
       /token|unauthorized|401|forbidden|403|blob.*config|store/i.test(message)
     ) {
