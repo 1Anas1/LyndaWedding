@@ -47,8 +47,9 @@ export async function GET(
       weddingDate = m ? `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}` : '2026-04-09'
     }
 
-    // First event for location details
+    // First event for location details and times
     const firstEvent = invitation.events[0]
+    const lastEvent = invitation.events[invitation.events.length - 1]
     const locationName = firstEvent?.locationName || 'Garden Venue'
     const address = firstEvent?.address || null
     const mapLat = firstEvent?.mapLat
@@ -59,6 +60,17 @@ export async function GET(
             address || `${mapLat},${mapLng}`
           )}&output=embed`
         : null
+
+    const formatTime = (d: Date) =>
+      `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+    const banquetStartTime =
+      firstEvent?.startsAt != null ? formatTime(firstEvent.startsAt) : '18:00'
+    const banquetEndTime =
+      lastEvent?.endsAt != null
+        ? formatTime(lastEvent.endsAt)
+        : firstEvent?.endsAt != null
+          ? formatTime(firstEvent.endsAt)
+          : '01:00'
 
     // Build timeline from events (or use contentJson.timeline if present)
     const timelineFromContent = (content?.timeline as Array<Record<string, unknown>>) || []
@@ -127,6 +139,8 @@ export async function GET(
       banquet_address: address,
       banquet_maps_url: mapsUrl,
       banquet_image_url: firstEvent?.imageUrl ?? null,
+      banquet_start_time: banquetStartTime,
+      banquet_end_time: banquetEndTime,
       hero_message: heroMessage,
     }
 

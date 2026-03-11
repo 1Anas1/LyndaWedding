@@ -19,6 +19,8 @@ interface WeddingSettings {
   banquet_address: string | null
   banquet_maps_url: string | null
   banquet_image_url?: string | null
+  banquet_start_time?: string
+  banquet_end_time?: string
 }
 
 interface WeddingData {
@@ -181,8 +183,8 @@ export default function WeddingPage({ initialSlug }: WeddingPageProps = {}) {
             address={ws.banquet_address}
             mapsUrl={ws.banquet_maps_url}
             venueImageUrl={ws.banquet_image_url}
-            startTime="18:00"
-            endTime="01:00"
+            startTime={ws.banquet_start_time ?? '18:00'}
+            endTime={ws.banquet_end_time ?? '01:00'}
             weddingDate={ws.wedding_date}
           />
 
