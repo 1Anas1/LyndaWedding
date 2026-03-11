@@ -13,6 +13,13 @@ interface EventListProps {
   events: Event[]
 }
 
+function getEventImageSrc(url: string | null | undefined): string {
+  if (!url || !url.trim()) return ''
+  if (url.includes('blob.vercel-storage.com'))
+    return `/api/event-image?url=${encodeURIComponent(url)}`
+  return url
+}
+
 export function EventList({ events }: EventListProps) {
   if (events.length === 0) return null
 
@@ -45,7 +52,7 @@ export function EventList({ events }: EventListProps) {
           >
             {event.imageUrl && (
               <img
-                src={event.imageUrl}
+                src={getEventImageSrc(event.imageUrl)}
                 alt=""
                 className="w-full h-48 object-cover"
               />

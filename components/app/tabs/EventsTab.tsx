@@ -37,15 +37,29 @@ interface EventsTabProps {
 
 function toInputDateTime(d: Date): string {
   const pad = (n: number) => String(n).padStart(2, '0')
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
+  const date = Number.isNaN(d.getTime()) ? new Date() : d
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
+}
+
+/** Use proxy for private Vercel Blob URLs so images load in the editor. */
+function getEventImageSrc(url: string | null | undefined): string {
+  if (!url || !url.trim()) return ''
+  if (url.includes('blob.vercel-storage.com'))
+    return `/api/event-image?url=${encodeURIComponent(url)}`
+  return url
+}
+
+function toDate(value: Date | string): Date {
+  const d = typeof value === 'string' ? new Date(value) : value
+  return Number.isNaN(d.getTime()) ? new Date() : d
 }
 
 export function EventsTab({ invitation, onSave, onEventsSaved }: EventsTabProps) {
   const [events, setEvents] = useState<EventItem[]>(
     invitation.events.map((e) => ({
       ...e,
-      startsAt: new Date(e.startsAt),
-      endsAt: e.endsAt ? new Date(e.endsAt) : null,
+      startsAt: toDate(e.startsAt),
+      endsAt: e.endsAt ? toDate(e.endsAt) : null,
     }))
   )
   const [expandedId, setExpandedId] = useState<string | null>(events[0]?.id ?? null)
@@ -289,7 +303,7 @@ export function EventsTab({ invitation, onSave, onEventsSaved }: EventsTabProps)
                         {event.imageUrl && (
                           <div className="mb-2 rounded-lg overflow-hidden border border-border bg-muted/30">
                             <img
-                              src={event.imageUrl}
+                              src={getEventImageSrc(event.imageUrl)}
                               alt=""
                               className="w-full h-32 object-cover"
                             />

@@ -16,6 +16,7 @@ export default auth((req) => {
     pathname.startsWith('/api/invites/') ||
     (pathname.startsWith('/api/invitations/') && pathname.includes('/slug')) ||
     pathname.startsWith('/api/auth/') || // Auth endpoints
+    pathname.startsWith('/api/event-image') || // Public proxy for private Blob images
     pathname === '/' ||
     pathname === '/login' ||
     pathname === '/unauthorized'
