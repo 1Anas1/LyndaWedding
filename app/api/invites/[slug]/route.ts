@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
+import { formatTimeInAppTz, getCountdownTargetISO } from '@/lib/timezone'
 
 /**
  * GET /api/invites/[slug]
@@ -61,30 +62,24 @@ export async function GET(
           )}&output=embed`
         : null
 
-    const formatTime = (d: Date) =>
-      `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
     const banquetStartTime =
-      firstEvent?.startsAt != null ? formatTime(firstEvent.startsAt) : '18:00'
+      firstEvent?.startsAt != null ? formatTimeInAppTz(firstEvent.startsAt) : '18:00'
     const banquetEndTime =
       lastEvent?.endsAt != null
-        ? formatTime(lastEvent.endsAt)
+        ? formatTimeInAppTz(lastEvent.endsAt)
         : firstEvent?.endsAt != null
-          ? formatTime(firstEvent.endsAt)
+          ? formatTimeInAppTz(firstEvent.endsAt)
           : '01:00'
 
     // Build timeline from events (or use contentJson.timeline if present)
     const timelineFromContent = (content?.timeline as Array<Record<string, unknown>>) || []
     const timelineFromEvents =
       invitation.events.length > 0
-        ? invitation.events.map((ev) => {
-            const start = ev.startsAt
-            const time = `${String(start.getHours()).padStart(2, '0')}:${String(start.getMinutes()).padStart(2, '0')}`
-            return {
-              time,
-              title: ev.name,
-              description: ev.notes || '',
-            }
-          })
+        ? invitation.events.map((ev) => ({
+            time: formatTimeInAppTz(ev.startsAt),
+            title: ev.name,
+            description: ev.notes || '',
+          }))
         : []
 
     const timeline =
@@ -144,8 +139,11 @@ export async function GET(
       hero_message: heroMessage,
     }
 
+    const countdownTargetISO = getCountdownTargetISO(finalWeddingDate, 18)
+
     return NextResponse.json({
       wedding_settings: weddingSettings,
+      countdown_target_iso: countdownTargetISO,
       events: timeline,
       faqs,
       guestMessageSection: guestMessageSection?.enabled

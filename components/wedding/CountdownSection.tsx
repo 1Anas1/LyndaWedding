@@ -4,7 +4,10 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 
 interface CountdownSectionProps {
+  /** Wedding date YYYY-MM-DD (fallback when countdownTargetISO not provided) */
   targetDate: string
+  /** UTC ISO string for 18:00 North Africa (Africa/Casablanca) on wedding day – used when provided */
+  countdownTargetISO?: string | null
 }
 
 interface TimeLeft {
@@ -21,7 +24,7 @@ const LABELS = [
   { key: 'seconds', label: 'Secondes' },
 ] as const
 
-export function CountdownSection({ targetDate }: CountdownSectionProps) {
+export function CountdownSection({ targetDate, countdownTargetISO }: CountdownSectionProps) {
   const normalizedDate = /^\d{4}-\d{2}-\d{2}/.test(targetDate) ? targetDate : '2026-04-09'
 
   const [timeLeft, setTimeLeft] = useState<TimeLeft>({
@@ -30,16 +33,22 @@ export function CountdownSection({ targetDate }: CountdownSectionProps) {
 
   useEffect(() => {
     const calculate = () => {
-      const target = normalizedDate.includes('T')
-        ? new Date(normalizedDate)
-        : new Date(`${normalizedDate}T12:00:00`)
+      const target = countdownTargetISO
+        ? new Date(countdownTargetISO)
+        : (() => {
+            const t = normalizedDate.includes('T')
+              ? new Date(normalizedDate)
+              : new Date(`${normalizedDate}T12:00:00`)
+            if (Number.isNaN(t.getTime())) return null
+            t.setHours(18, 0, 0, 0)
+            return t
+          })()
 
-      if (Number.isNaN(target.getTime())) {
+      if (!target || Number.isNaN(target.getTime())) {
         setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 })
         return
       }
 
-      target.setHours(18, 0, 0, 0)
       const diff = target.getTime() - Date.now()
 
       if (diff > 0) {
@@ -57,7 +66,7 @@ export function CountdownSection({ targetDate }: CountdownSectionProps) {
     calculate()
     const interval = setInterval(calculate, 1000)
     return () => clearInterval(interval)
-  }, [normalizedDate])
+  }, [normalizedDate, countdownTargetISO])
 
   return (
     <section id="countdown" className="section-padding bg-countdown">

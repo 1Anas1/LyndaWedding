@@ -25,6 +25,7 @@ interface WeddingSettings {
 
 interface WeddingData {
   wedding_settings: WeddingSettings
+  countdown_target_iso?: string | null
   guestMessageSection?: { label: string } | null
 }
 
@@ -174,7 +175,10 @@ export default function WeddingPage({ initialSlug }: WeddingPageProps = {}) {
 
           
 
-          <CountdownSection targetDate={ws.wedding_date} />
+          <CountdownSection
+            targetDate={ws.wedding_date}
+            countdownTargetISO={data?.countdown_target_iso}
+          />
 
           
 
