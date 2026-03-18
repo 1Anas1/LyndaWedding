@@ -99,7 +99,7 @@ export function HeroSection({ name1, name2, date, subtitle }: HeroSectionProps) 
         className="absolute bottom-8 inset-x-0 z-10 flex flex-col items-center gap-2 text-center text-white hover:text-white/80 transition-colors cursor-pointer"
       >
         <span className="text-xs tracking-[0.3em] uppercase font-body">
-          Confirmez votre présence
+          Votre présence rendra ce jour plus spécial ❤️
         </span>
         <motion.div
           animate={{ y: [0, 8, 0] }}
